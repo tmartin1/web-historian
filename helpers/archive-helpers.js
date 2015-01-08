@@ -25,17 +25,25 @@ exports.initialize = function(pathsObj){
 // The following function names are provided to you to suggest how you might
 // modularize your code. Keep it clean!
 
+// return sitenames in sites.txt
 exports.readListOfUrls = function(){
 };
 
-exports.isUrlInList = function(){
+// check sites.txt for sitename
+exports.isUrlInList = function(sitename){
 };
 
-exports.addUrlToList = function(){
+// add sitename to sites.txt
+exports.addUrlToList = function(sitename){
+  // check list first, don't add if already on list
 };
 
-exports.isURLArchived = function(){
+// check folder for site
+exports.isURLArchived = function(sitename){
 };
 
+// add site to folder and removes sitename from sites.txt
 exports.downloadUrls = function(){
+  // handle async race condition
+  // get page
 };
