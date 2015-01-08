@@ -35,7 +35,7 @@ var routePOST = function(req, res){
   req.on('data', function(data){
     var sitename = data.toString().slice(4);
     //archive-helpers
-    archive.isUrlInList(sitename, function(result) {
+    archive.isURLArchived(sitename, function(result) {
       if (result) {
         // return the html
         httpHelpers.serveAssets(res, '../archives/sites/www.'+sitename);
@@ -43,7 +43,7 @@ var routePOST = function(req, res){
         // display 'loading'
         httpHelpers.serveAssets(res, 'public/loading.html');
         // add sitename to list
-        httpHelpers.addUrlToList(sitename);
+        archive.addUrlToList(sitename);
       }
     });
   });

@@ -37,22 +37,28 @@ exports.readListOfUrls = function(cb){
 // check sites.txt for sitename
 exports.isUrlInList = function(sitename, cb){
   exports.readListOfUrls(function(sites) {
-    if (sites.indexOf(sitename) >= 0){
-      return cb(true);
-    } else{
-      return cb(false);
-    }
+    return cb(sites.indexOf(sitename) >= 0);
   });
 };
 
 // add sitename to sites.txt
 exports.addUrlToList = function(sitename){
   // check list first, don't add if already on list
-  // fs.appendFile()
+  exports.isUrlInList(sitename, function(doesExist){
+    if(!doesExist){
+      fs.appendFile('../archives/sites.txt', sitename+'\n', function(err, data){
+        if(err) throw err;
+      });
+    }
+  });
 };
 
 // check folder for site
-exports.isURLArchived = function(sitename){
+exports.isURLArchived = function(sitename, cb){
+  fs.stat("../archives/sites/www."+sitename, function(err, stats){
+    if(err) cb(false);
+    else cb(stats.isFile());
+  });
 };
 
 // add site to folder and removes sitename from sites.txt
