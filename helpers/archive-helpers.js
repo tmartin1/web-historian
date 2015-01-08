@@ -1,6 +1,9 @@
 var fs = require('fs');
-var path = require('path');
 var _ = require('underscore');
+var path = require('path');
+var http = require('http');
+var https = require('https'); // ?
+var rootPath = __dirname+'/../';
 
 /*
  * You will need to reuse the same paths many times over in the course of this sprint.
@@ -26,27 +29,30 @@ exports.initialize = function(pathsObj){
 // modularize your code. Keep it clean!
 
 // return sitenames in sites.txt
-exports.readListOfUrls = function(cb){
-  fs.readFile('../archives/sites.txt', function(err, data){
+exports.readListOfUrls = function(filepath, cb){
+  // filepath should be '../web/archives/sites.txt'
+  fs.readFile(filepath, function(err, data){
     if(err) throw err;
     var sites = data.toString().split("\n");
+    sites.pop();
     cb(sites);
   });
 };
 
 // check sites.txt for sitename
-exports.isUrlInList = function(sitename, cb){
-  exports.readListOfUrls(function(sites) {
+exports.isUrlInList = function(filepath, sitename, cb){
+  exports.readListOfUrls(filepath, function(sites) {
     return cb(sites.indexOf(sitename) >= 0);
   });
 };
 
 // add sitename to sites.txt
-exports.addUrlToList = function(sitename){
+exports.addUrlToList = function(filepath, sitename){
   // check list first, don't add if already on list
-  exports.isUrlInList(sitename, function(doesExist){
+  exports.isUrlInList(filepath, sitename, function(doesExist){
     if(!doesExist){
-      fs.appendFile('../archives/sites.txt', sitename+'\n', function(err, data){
+      // filepath should be '../web/archives/sites.txt'
+      fs.appendFile(filepath, sitename+'\n', function(err, data){
         if(err) throw err;
       });
     }
@@ -54,15 +60,51 @@ exports.addUrlToList = function(sitename){
 };
 
 // check folder for site
-exports.isURLArchived = function(sitename, cb){
-  fs.stat("../archives/sites/www."+sitename, function(err, stats){
+exports.isURLArchived = function(filepath, cb){
+  // filepath should be '../web/archives/sites/www.'
+  fs.stat(filepath, function(err, stats){
     if(err) cb(false);
     else cb(stats.isFile());
   });
 };
 
 // add site to folder and removes sitename from sites.txt
-exports.downloadUrls = function(){
-  // handle async race condition
-  // get page
+exports.downloadUrls = function(sites){
+  _.each(sites, function(site){
+    console.log('scaping site: ', site);
+    exports.scrape(site);
+  });
 };
+
+exports.scrape = function(site){
+  var req = http.get("http://"+site, function(res){
+    var bodyChunks = [];
+    res.on('data', function(chunk){
+      bodyChunks.push(chunk);
+    });
+    res.on('end', function(){
+      var body = Buffer.concat(bodyChunks);
+      fs.writeFile(rootPath+'/web/archives/sites/www.'+site, body, function(err){
+        if(err) throw err;
+        exports.updateSitesFile();
+      });
+    });
+  });
+  req.on('error', function(err){
+    console.log('ERROR: ', err);
+  });
+};
+
+// remove site from site.txt
+// reads list again to ensure changes since downloadUrls was called are accounted for.
+exports.updateSitesFile = function(sites){
+  exports.readListOfUrls(rootPath+'/web/archives/sites.txt', function(sites){
+    sites.shift();
+    sites.join('\n');
+    // overwrite sites.txt
+    fs.writeFile(rootPath+'/web/archives/sites.txt', sites, function(err){
+      if(err) throw err;
+    });
+  });
+};
+

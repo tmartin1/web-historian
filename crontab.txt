@@ -1,1 +1,1 @@
-* * * * * node /Users/HR10/2014-12-web-historian/workers/htmlfetcher.js
+* * * * * /Users/HR10/.nvm/v0.10.25/bin/node /Users/HR10/2014-12-web-historian/workers/htmlfetcher.js

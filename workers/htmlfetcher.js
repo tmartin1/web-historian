@@ -1,7 +1,10 @@
 // eventually, you'll have some code here that uses the code in `archive-helpers.js`
 // to actually download the urls you want to download.
-var fs = require('fs');
+var archive = require('/Users/HR10/2014-12-web-historian/helpers/archive-helpers.js');
 
-fs.appendFile('/Users/HR10/2014-12-web-historian/workers/cronoutput.txt', 'CRONing', function(err) {
-  if (err) throw err;
+var filepath = '/Users/HR10/2014-12-web-historian/web/archives/sites.txt';
+var urls = archive.readListOfUrls(filepath, function(sites){
+  archive.downloadUrls(sites);
 });
+
+
