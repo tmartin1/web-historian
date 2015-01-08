@@ -26,16 +26,29 @@ exports.initialize = function(pathsObj){
 // modularize your code. Keep it clean!
 
 // return sitenames in sites.txt
-exports.readListOfUrls = function(){
+exports.readListOfUrls = function(cb){
+  fs.readFile('../archives/sites.txt', function(err, data){
+    if(err) throw err;
+    var sites = data.toString().split("\n");
+    cb(sites);
+  });
 };
 
 // check sites.txt for sitename
-exports.isUrlInList = function(sitename){
+exports.isUrlInList = function(sitename, cb){
+  exports.readListOfUrls(function(sites) {
+    if (sites.indexOf(sitename) >= 0){
+      return cb(true);
+    } else{
+      return cb(false);
+    }
+  });
 };
 
 // add sitename to sites.txt
 exports.addUrlToList = function(sitename){
   // check list first, don't add if already on list
+  // fs.appendFile()
 };
 
 // check folder for site
